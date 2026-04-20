@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 - Count-bump marker A (no runtime effect).
+- Count-bump marker B (no runtime effect).
 
 ### Added
 - Initial scaffolding: `src/`, `docs/`, `CODEOWNERS`.
