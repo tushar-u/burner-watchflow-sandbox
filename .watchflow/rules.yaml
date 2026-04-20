@@ -1,0 +1,72 @@
+rules:
+  # --- BASELINE: always runs, no `when:` ---
+  - description: "PRs must reference a linked issue (e.g. Fixes #123)."
+    enabled: true
+    severity: "high"
+    event_types: ["pull_request"]
+    parameters:
+      require_linked_issue: true
+
+  # --- `contributor: first_time` — stricter title check for newcomers ---
+  - description: "First-time contributors must use conventional-commit style titles."
+    enabled: true
+    severity: "medium"
+    event_types: ["pull_request"]
+    parameters:
+      title_pattern: "^(feat|fix|docs|chore|refactor|test|perf|ci|build|revert)(\\(.+\\))?:\\s.+"
+      min_description_length: 30
+    when:
+      contributor: first_time
+
+  # --- `contributor: trusted` — lighter rule, only for established contributors ---
+  - description: "Trusted contributors must still update the CHANGELOG for code changes."
+    enabled: true
+    severity: "low"
+    event_types: ["pull_request"]
+    parameters:
+      require_changelog_update: true
+    when:
+      contributor: trusted
+
+  # --- `pr_count_below: N` — your max_pr_loc gate ---
+  - description: "PR total lines changed must not exceed 500 (newcomers and low-PR contributors only)."
+    enabled: true
+    severity: "medium"
+    event_types: ["pull_request"]
+    parameters:
+      max_pr_loc: 500
+    when:
+      pr_count_below: 3
+
+  # --- `files_match` (single glob) — path-scoped rule ---
+  - description: "Changes under docs/ must have a descriptive PR title."
+    enabled: true
+    severity: "low"
+    event_types: ["pull_request"]
+    parameters:
+      title_pattern: "^docs:\\s.+"
+    when:
+      files_match: "docs/*"
+
+  # --- `files_match` (list) — multiple globs ---
+  - description: "Workflow or security-sensitive changes require CODEOWNER review."
+    enabled: true
+    severity: "high"
+    event_types: ["pull_request"]
+    parameters:
+      require_code_owner_reviewers: true
+    when:
+      files_match:
+        - ".github/workflows/*"
+        - "src/**"
+
+  # --- combined predicates (AND) — first-timers touching src/ ---
+  - description: "First-time contributors touching src/ must have unresolved comments blocked."
+    enabled: true
+    severity: "high"
+    event_types: ["pull_request"]
+    parameters:
+      block_on_unresolved_comments: true
+    when:
+      contributor: first_time
+      files_match: "src/**"
